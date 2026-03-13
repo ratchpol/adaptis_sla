@@ -41,6 +41,10 @@
             margin: 0;
         }
         
+        .app-header p {
+            margin: 0;
+        }
+        
         .location-selector {
             background: white;
             border-radius: 20px;
@@ -109,7 +113,7 @@
             cursor: pointer;
             flex: 1;
             margin-left: 12px;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
         }
         
         .product-sla {
@@ -183,22 +187,35 @@
         <div class="app-header text-center">
             <i class="bi bi-shop fs-1 text-primary mb-2"></i>
             <h1>MODS Product Selection</h1>
-            <p class="text-muted mb-0">เลือกผลิตภัณฑ์และดู SLA</p>
+            <p class="text-muted mb-0">Select products and view SLA</p>
         </div>
         
         <!-- Summary -->
-        <div class="summary-card" id="summaryCard" style="display: none; margin-bottom: 30px;">
+        <div class="summary-card" id="summaryCard" style="margin-bottom: 30px;">
             <div class="summary-title">
-                <i class="bi bi-clipboard-check"></i> สรุปรายการที่เลือก
+                <i class="bi bi-clipboard-check"></i> Selected Summary
             </div>
-            <div id="selectedProducts"></div>
+            <div id="selectedProducts">
+                <div class="alert alert-info mb-0" style="border-radius: 12px; border: none; background: linear-gradient(135deg, #e5e7eb, #d1d5db); color: #6b7280;">
+                    <div class="text-center py-2">
+                        <i class="bi bi-info-circle"></i> Please select products
+                    </div>
+                </div>
+            </div>
         </div>
         
         <!-- Products List -->
         <div class="location-selector">
-            <label class="form-label fw-bold text-secondary mb-3">
-                <i class="bi bi-card-checklist"></i> เลือกผลิตภัณฑ์
-            </label>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <label class="form-label fw-bold text-secondary mb-0">
+                    <i class="bi bi-card-checklist"></i> Select Products
+                </label>
+                <select class="form-select" id="selectionMode" style="width: auto; font-size: 0.85rem;">
+                    <option value="none">Clear All</option>
+                    <option value="minimum" selected>Minimum SLA</option>
+                    <option value="all">Select All</option>
+                </select>
+            </div>
             <div class="product-grid" id="productList">
                 <!-- Products will be loaded here -->
             </div>

@@ -14,7 +14,16 @@ let selectedProducts = new Set();
 document.addEventListener('DOMContentLoaded', () => {
     loadLocationSLA();
     loadProductsFromSheet();
+    setupSelectionMode();
 });
+
+// Setup selection mode dropdown
+function setupSelectionMode() {
+    const selectionMode = document.getElementById('selectionMode');
+    selectionMode.addEventListener('change', (e) => {
+        applySelectionMode(e.target.value);
+    });
+}
 
 // Load location SLA from Google Sheets
 async function loadLocationSLA() {
@@ -90,6 +99,46 @@ async function loadProductsFromSheet() {
     }
 }
 
+// Apply selection mode
+function applySelectionMode(mode) {
+    selectedProducts.clear();
+    
+    if (mode === 'all') {
+        // Select all products
+        products.forEach(product => {
+            selectedProducts.add(product.id);
+        });
+    } else if (mode === 'minimum') {
+        // Select products with minimum SLA
+        let minSLA = Infinity;
+        
+        products.forEach(product => {
+            const totalSLA = product.slaBKK + product.slaUPC;
+            if (totalSLA < minSLA) {
+                minSLA = totalSLA;
+            }
+        });
+        
+        products.forEach(product => {
+            const totalSLA = product.slaBKK + product.slaUPC;
+            if (totalSLA === minSLA) {
+                selectedProducts.add(product.id);
+            }
+        });
+    }
+    // mode === 'none' will leave selectedProducts empty
+    
+    // Update checkboxes
+    products.forEach(product => {
+        const checkbox = document.getElementById(`product-${product.id}`);
+        if (checkbox) {
+            checkbox.checked = selectedProducts.has(product.id);
+        }
+    });
+    
+    updateSummary();
+}
+
 // Render products
 function renderProducts() {
     const productList = document.getElementById('productList');
@@ -97,7 +146,29 @@ function renderProducts() {
     // Sort products by ProductID
     const sortedProducts = [...products].sort((a, b) => a.id - b.id);
     
+    // Find minimum SLA (BKK + UPC)
+    let minSLA = Infinity;
+    
+    sortedProducts.forEach(product => {
+        const totalSLA = product.slaBKK + product.slaUPC;
+        if (totalSLA < minSLA) {
+            minSLA = totalSLA;
+        }
+    });
+    
+    // Auto-select all products with minimum SLA
+    sortedProducts.forEach(product => {
+        const totalSLA = product.slaBKK + product.slaUPC;
+        if (totalSLA === minSLA) {
+            selectedProducts.add(product.id);
+        }
+    });
+    
+    updateSummary();
+    
     productList.innerHTML = sortedProducts.map(product => {
+        const totalSLA = product.slaBKK + product.slaUPC;
+        const isChecked = totalSLA === minSLA ? 'checked' : '';
         return `
         <div class="product-card">
             <div class="d-flex align-items-center">
@@ -106,6 +177,7 @@ function renderProducts() {
                     class="product-checkbox" 
                     id="product-${product.id}"
                     value="${product.id}"
+                    ${isChecked}
                     onchange="toggleProduct(${product.id})"
                 >
                 <label class="product-label" for="product-${product.id}">
@@ -141,11 +213,15 @@ function updateSummary() {
     const selectedProductsDiv = document.getElementById('selectedProducts');
     
     if (selectedProducts.size === 0) {
-        summaryCard.style.display = 'none';
+        selectedProductsDiv.innerHTML = `
+            <div class="alert alert-info mb-0" style="border-radius: 12px; border: none; background: linear-gradient(135deg, #e5e7eb, #d1d5db); color: #6b7280;">
+                <div class="text-center py-2">
+                    <i class="bi bi-info-circle"></i> Please select products
+                </div>
+            </div>
+        `;
         return;
     }
-    
-    summaryCard.style.display = 'block';
     
     // Calculate max SLA and add 4 days
     let maxBKK = 0;
@@ -170,14 +246,14 @@ function updateSummary() {
                 <div class="text-center">
                     <div style="font-size: 0.9rem; opacity: 0.9; font-weight: 600;">SLA Estimate BKK</div>
                     <div style="font-size: 1.5rem; font-weight: 700;">
-                        <i class="bi bi-clock-fill"></i> ${estimateBKKMin}~${estimateBKKMax} วัน
+                        <i class="bi bi-clock-fill"></i> ${estimateBKKMin}~${estimateBKKMax} days
                     </div>
                 </div>
                 <div style="width: 2px; height: 40px; background: rgba(255,255,255,0.3);"></div>
                 <div class="text-center">
                     <div style="font-size: 0.9rem; opacity: 0.9; font-weight: 600;">SLA Estimate UPC</div>
                     <div style="font-size: 1.5rem; font-weight: 700;">
-                        <i class="bi bi-clock-fill"></i> ${estimateUPCMin}~${estimateUPCMax} วัน
+                        <i class="bi bi-clock-fill"></i> ${estimateUPCMin}~${estimateUPCMax} days
                     </div>
                 </div>
             </div>
