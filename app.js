@@ -8,13 +8,6 @@ const LOCATION_SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/g
 let products = [];
 let locationSLA = {};
 
-const channelNames = {
-    1: 'E-Wallet',
-    2: 'Card',
-    3: 'QR Payment',
-    4: 'Credit Card'
-};
-
 let selectedProducts = new Set();
 
 // Initialize app
@@ -92,7 +85,6 @@ function renderProducts() {
     const sortedProducts = [...products].sort((a, b) => a.id - b.id);
     
     productList.innerHTML = sortedProducts.map(product => {
-        const channelName = channelNames[product.channelId] || '';
         return `
         <div class="product-card">
             <div class="d-flex align-items-center">
@@ -105,7 +97,6 @@ function renderProducts() {
                 >
                 <label class="product-label" for="product-${product.id}">
                     ${product.name}
-                    ${channelName ? `<span class="channel-badge channel-${product.channelId}">${channelName}</span>` : ''}
                 </label>
                 <div class="text-end" style="white-space: nowrap;">
                     <span class="product-sla" style="font-size: 0.75rem; display: inline-block; margin-right: 4px;">
