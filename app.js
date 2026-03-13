@@ -52,20 +52,33 @@ async function loadProductsFromSheet() {
         const rows = json.table.rows;
         products = [];
         
+        console.log('Total rows:', rows.length);
+        
         // Skip header row (index 0)
         for (let i = 1; i < rows.length; i++) {
             const row = rows[i].c;
-            if (row && row[0] && row[1]) {
-                products.push({
-                    id: row[0].v,
-                    name: row[1].v,
-                    channelId: row[2] ? row[2].v : 1,
-                    slaBKK: row[3] ? row[3].v : 0,
-                    slaUPC: row[4] ? row[4].v : 0
-                });
+            console.log(`Row ${i}:`, row);
+            
+            // Check if row exists and has at least product ID and name
+            if (row) {
+                const id = row[0] ? row[0].v : null;
+                const name = row[1] ? row[1].v : null;
+                
+                if (id && name) {
+                    products.push({
+                        id: id,
+                        name: name,
+                        channelId: row[2] ? row[2].v : 1,
+                        slaBKK: row[3] ? row[3].v : 0,
+                        slaUPC: row[4] ? row[4].v : 0
+                    });
+                } else {
+                    console.log(`Skipped row ${i}: id=${id}, name=${name}`);
+                }
             }
         }
         
+        console.log('Products loaded:', products);
         renderProducts();
     } catch (error) {
         console.error('Error loading products:', error);
