@@ -15,7 +15,68 @@ document.addEventListener('DOMContentLoaded', () => {
     loadLocationSLA();
     loadProductsFromSheet();
     setupSelectionMode();
+    createSakura();
+    loadDarkMode();
 });
+
+// Dark mode toggle
+function toggleDarkMode() {
+    const body = document.body;
+    const toggle = document.getElementById('darkModeToggle');
+    
+    body.classList.toggle('dark-mode');
+    
+    // Update checkbox state
+    const isDarkMode = body.classList.contains('dark-mode');
+    toggle.checked = isDarkMode;
+    
+    // Save preference
+    localStorage.setItem('darkMode', isDarkMode);
+}
+
+// Load dark mode preference
+function loadDarkMode() {
+    const darkMode = localStorage.getItem('darkMode');
+    const toggle = document.getElementById('darkModeToggle');
+    
+    // Default to dark mode if no preference saved
+    if (darkMode === null || darkMode === 'true') {
+        document.body.classList.add('dark-mode');
+        if (toggle) toggle.checked = true;
+    } else {
+        document.body.classList.remove('dark-mode');
+        if (toggle) toggle.checked = false;
+    }
+}
+
+// Create falling sakura petals
+function createSakura() {
+    const container = document.getElementById('sakuraContainer');
+    const sakuraCount = 8;
+    
+    for (let i = 0; i < sakuraCount; i++) {
+        const sakura = document.createElement('div');
+        sakura.className = 'sakura';
+        
+        // Create 5 petals
+        for (let j = 0; j < 3; j++) {
+            const petal = document.createElement('div');
+            petal.className = 'petal';
+            sakura.appendChild(petal);
+        }
+        
+        // Random position and animation
+        sakura.style.left = Math.random() * 100 + '%';
+        const duration = Math.random() * 5 + 8;
+        sakura.style.animationDuration = duration + 's';
+        
+        // Spread initial positions throughout the fall path
+        const initialDelay = -(Math.random() * duration);
+        sakura.style.animationDelay = initialDelay + 's';
+        
+        container.appendChild(sakura);
+    }
+}
 
 // Setup selection mode dropdown
 function setupSelectionMode() {
@@ -214,7 +275,7 @@ function updateSummary() {
     
     if (selectedProducts.size === 0) {
         selectedProductsDiv.innerHTML = `
-            <div class="alert alert-info mb-0" style="border-radius: 12px; border: none; background: linear-gradient(135deg, #e5e7eb, #d1d5db); color: #6b7280;">
+            <div class="alert alert-info mb-0" style="border-radius: 12px; border: none; background: linear-gradient(135deg, #ffc0e3, #ffb7d5); color: #d946a6;">
                 <div class="text-center py-2">
                     <i class="bi bi-info-circle"></i> Please select products
                 </div>
@@ -241,7 +302,7 @@ function updateSummary() {
     
     // Show only max SLA summary
     const maxSummary = `
-        <div class="alert alert-info mb-0" style="border-radius: 12px; border: none; background: linear-gradient(135deg, #3b82f6, #2563eb); color: white;">
+        <div class="alert alert-info mb-0" style="border-radius: 12px; border: none; background: linear-gradient(135deg, #ff69b4, #ff85c1); color: white;">
             <div class="d-flex justify-content-around align-items-center">
                 <div class="text-center">
                     <div style="font-size: 0.9rem; opacity: 0.9; font-weight: 600;">SLA Estimate BKK</div>
